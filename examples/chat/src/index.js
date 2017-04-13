@@ -11,7 +11,7 @@ function init () {
   var privateButton = document.getElementById('private')
   var form = document.getElementById('msg-form')
   var box = document.getElementById('msg-box')
-  var boxFile = document.getElementById('msg-file')
+  
   var msgList = document.getElementById('msg-list')
   var upgradeMsg = document.getElementById('upgrade-msg')
   var msgSubmitButton = document.getElementById('msg-submit')
@@ -24,7 +24,7 @@ function init () {
   var boomBox = document.getElementById('boom-box')
   var boomSubmitButton = document.getElementById('boom-button') 
 
-  var emitToggle = document.getElementById('emit-toggle')
+  var playClick = document.getElementById('emit-toggle')
 
   // web audio stuff
   // TODO - put this in its own file to be included...
@@ -44,6 +44,7 @@ function init () {
   // another sound
   var sine2 = audioCtx.createOscillator();
   var gain2 = audioCtx.createGain();
+  var muteClick = audioCtx.createGain();
 
   // the patch
   sine.connect(biquadFilter);
@@ -58,13 +59,15 @@ function init () {
   sine.start(0);
 
   // patch 2
-  sine2.connect(gain2);
-  gain2.connect(audioCtx.destination);
+  sine2.connect(gain2); // oscillator
+  gain2.connect(muteClick); // used for turning notes on/off
+  muteClick.connect(audioCtx.destination); // used to disable (mute) the click
 
   gain2.gain.value = 0;
+  muteClick.gain.value = 0;
   sine2.start(0);
   // boom
-  sine2.frequency.value = 80;
+  sine2.frequency.value = 110;
 
   var emitIntervalID; // to keep track of the interval function call
   
@@ -77,25 +80,16 @@ function init () {
     gain.gain.setValueAtTime(.5, now ); // note on
     gain.gain.linearRampToValueAtTime(0, now + quarterNote); // note off
   }
-  }
+  } 
 
-  // https://sigusrone.com/articles/building-a-synth-with-the-web-audio-api-part-two 
-function getFrequency(midi_code) {
-  var offset_code = midi_code - 69;
-  if (offset_code > 0) {
-    return Number(440 * Math.pow(2, offset_code / 12));
-  } else {
-    return Number(440 / Math.pow(2, -offset_code / 12));
-  }
-}
   // end web audio stuff
   ////////////////////////////////////////////////
 
   //don't allow people to send stuff until they choose a room
   msgSubmitButton.disabled = true
 
-  var socket = io()
-  var socket2 = io()
+  var socket = io() 
+  var socket2 = io() // used for click track room
   var opts = {peerOpts: {trickle: false}, autoUpgrade: false}
   var p2psocket = new Socketiop2p(socket, opts, function () {
     privateButton.disabled = false
@@ -147,27 +141,18 @@ function getFrequency(midi_code) {
   })
 
 
-
   form.addEventListener('submit', function (e, d) {
     e.preventDefault()
     var li = document.createElement('li')
     li.appendChild(document.createTextNode(box.value))
     msgList.appendChild(li)
-    if (boxFile.value !== '') {
-      var reader = new window.FileReader()
-      reader.onload = function (evnt) {
-        p2psocket.emit('peer-file', {file: evnt.target.result})
-      }
-      reader.onerror = function (err) {
-        console.error('Error while reading file', err)
-      }
-      reader.readAsArrayBuffer(boxFile.files[0])
-    } else {
-      p2psocket.emit('peer-msg', {textVal: box.value})
-    }
+    
+    p2psocket.emit('peer-msg', {textVal: box.value})
+    // clear message
     box.value = ''
-    boxFile.value = ''
+    
   })
+
 
   privateButton.addEventListener('click', function (e) {
     goPrivate()
@@ -201,17 +186,15 @@ function getFrequency(midi_code) {
   })
 
   // Check toggle box to send pulse out or not
-  emitToggle.addEventListener('click', function(){
+  playClick.addEventListener('click', function(){
 
-    if(emitToggle.checked == true){
-      console.log("turning on click");
-      emitIntervalID = setInterval(function(){  
-        p2psocket2.emit('boom');
-        // generate a pulse....
-        }, 200); // ms
+    if(playClick.checked == true){
+      console.log("unmute click");
+      muteClick.gain.value = 1.0;
+      
     }
     else{
-      clearInterval(emitIntervalID);
+      muteClick.gain.value = 0;
     }
 
   })

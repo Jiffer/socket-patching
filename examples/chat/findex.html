@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>boom room</title>
+</head>
+<body>
+  <h1>Clickity</h1>
+  <p><i>Clack</i></p>
+
+  <ul id="messages"></ul>
+
+<form action="#" id="boom-form">
+    <label>Enter boom name</label>
+    <input type="text" name="boomroom" id="boom-box" size="40">
+    <input type="submit" value="Enter boom Room" id="boom-button">
+  </form>
+
+  <label class="switch">
+  <input type="checkbox" id="emit-toggle"> 
+  <label> send pulse</label>
+  <div class="slider"></div> 
+</label>
+
+  
+  <br />
+  <button id="private" disabled="true">use webRTC</button>
+  <span style="color: red;" id="upgrade-msg"></span>
+  <h2>Messages</h2>
+  <ul id="msg-list"></ul>
+  <style>
+    h2 {
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin-top: 5px;
+    }
+    li {
+      padding: 5px 0;
+      border-top: 1px dashed #CCC;
+    }
+    input, label {
+      margin-top: 10px;
+      display: block;
+    }
+  </style>
+
+  <script src="/src/audioStuff.js"></script>
+  <script src="/clickBundle.js"></script>
+</body>
+</html>

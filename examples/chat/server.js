@@ -4,6 +4,8 @@ var server = require('http').createServer(
 )
 var p2pserver = require('socket.io-p2p-server').Server
 var io = require('socket.io')(server)
+var url = require('url')
+var fs = require('fs')
 
 var socket_rooms = {}
 
@@ -11,6 +13,24 @@ var socket_rooms = {}
 server.listen(3030, function () {
   console.log('Listening on 3030')
 })
+
+// use a url
+function requestHandler(req, res) {
+
+  var parsedUrl = url.parse(req.url);
+  console.log("The Request is: " + parsedUrl.pathname);
+    
+  fs.readFile(__dirname + parsedUrl.pathname, 
+    function (err, data) {
+      if (err) {
+        res.writeHead(500);
+        return res.end('Error loading ' + parsedUrl.pathname);
+      }
+      res.writeHead(200);
+      res.end(data);
+      }
+    );
+}
 
  //io.use(p2pserver)
 
@@ -40,7 +60,7 @@ io.on('connection', function (socket) {
   })
 
   socket.on('boom', function(){
-    console.log("bo0m" + socket.id);
+    //console.log("bo0m" + socket.id);
     socket.broadcast.to(socket_rooms[socket.id]).emit('boom')
   })
 })
