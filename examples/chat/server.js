@@ -63,4 +63,11 @@ io.on('connection', function (socket) {
     //console.log("bo0m" + socket.id);
     socket.broadcast.to(socket_rooms[socket.id]).emit('boom')
   })
+
+  socket.on('drawing', function(data){
+      //send this drawing data to EVERYONE
+      //don't need to send back to the client it came from
+      socket.broadcast.emit('otherdrawing', data);
+    });
+
 })
