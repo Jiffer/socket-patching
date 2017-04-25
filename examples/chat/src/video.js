@@ -1,15 +1,17 @@
 'use strict'
 var Socketiop2p = require('../../../index')
 var io = require('socket.io-client')
+var p2psocket;
 /*
 navigator.getUserMedia = navigator.getUserMedia ||
     navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 */
 function init () {
+  console.log("video.js init has been")
   var socket = io()
   var opts = {peerOpts: {trickle: false}, autoUpgrade: false}
 
-  var p2psocket = new Socketiop2p(socket, opts, function () {
+  p2psocket = new Socketiop2p(socket, opts, function () {
     privateButton.disabled = false
     p2psocket.emit('peer-obj', 'Hello there. I am ' + p2psocket.peerId)
   })
@@ -55,3 +57,5 @@ function init () {
   } // end init
 
 document.addEventListener('DOMContentLoaded', init, false)
+
+

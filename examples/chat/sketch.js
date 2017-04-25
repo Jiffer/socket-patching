@@ -71,4 +71,3 @@ function sendLoc(message){
 	p2psocket.emit('loc', message);  // socket.emit('drawing', message);
  	// console.log(message);
 }
-
